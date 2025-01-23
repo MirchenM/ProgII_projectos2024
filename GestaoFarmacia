@@ -1,0 +1,491 @@
+package GestaoFarmacia;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Map;
+
+  public class Cliente {
+	private String nome;
+	private double contaCorrente;
+	
+	public Cliente(String nome) {
+		this.nome= nome;
+		this.contaCorrente = 0.0;
+		
+	}
+	
+	public String getNome() {
+		return nome;
+	}
+	
+	public double getContaCorrente() {
+		return contaCorrente;
+	}
+	
+	public void adicionarCompra(double valor) {
+		this.contaCorrente += valor;
+	}
+
+}
+
+
+  class Farmacia {
+	private List<Cliente> clientes;
+	private List<Produto> produtos;
+	private List<Venda> vendas;
+	
+	public Farmacia() {
+		this.clientes = new ArrayList<>();
+		this.produtos = new ArrayList<>();
+		this.vendas = new ArrayList<>();
+		
+	}
+	
+	//Métodos para adicionar/atualizar/remover clientes, produtos, etc.
+
+	public void adicionarCliente(Cliente cliente) {
+        clientes.add(cliente);
+        System.out.println("Cliente adicionado com sucesso!");
+    }
+
+	public void removerCliente(String nomeCliente) {
+        Cliente cliente = buscarClientePorNome(nomeCliente);
+
+        if (cliente != null) {
+            clientes.remove(cliente);
+            System.out.println("Cliente removido com sucesso!");
+        } else {
+            System.out.println("Cliente não encontrado.");
+        }
+    }
+	
+	
+	public void adicionarProduto(Produto produto) {
+        produtos.add(produto);
+        System.out.println("Produto adicionado com sucesso!");
+    }
+
+    public void removerProduto(String nomeProduto) {
+        Produto produto = buscarProdutoPorNome(nomeProduto);
+
+        if (produto != null) {
+            produtos.remove(produto);
+            System.out.println("Produto removido com sucesso!");
+        } else {
+            System.out.println("Produto não encontrado.");
+        }
+    }
+    
+
+    public void realizarVenda(Venda venda, Cliente cliente) {
+        double total = venda.calcularTotal();
+        cliente.adicionarCompra(total);
+        this.vendas.add(venda);
+    }
+
+    
+    
+    public void menuInventarios() {
+        Scanner lerDados = new Scanner(System.in);
+        while (true) {
+            System.out.println("\n=== Menu Inventários ===");
+            System.out.println("1. Relatório Estoque Baixo");
+            System.out.println("2. Relatório Inventário Atual");
+            System.out.println("0. Voltar");
+
+            System.out.print("Escolha uma opção: ");
+            int escolha = lerDados.nextInt();
+
+            switch (escolha) {
+                case 1:
+                    gerarRelatorioEstoqueBaixo();
+                    break;
+                case 2:
+                    gerarRelatorioInventarioAtual();
+                    break;
+                case 0:
+                    return;
+                default:
+                    System.out.println("Opção inválida. Tente novamente.");
+            }
+        }
+    }
+    
+    
+    
+    public void menuVendas(Scanner lerDados) {
+        while (true) {
+            System.out.println("\n=== Menu Vendas ===");
+            System.out.println("1. Realizar Venda");
+            System.out.println("0. Voltar");
+
+            System.out.print("Escolha uma opção: ");
+            int escolha = lerDados.nextInt();
+
+            switch (escolha) {
+                case 1:
+                    realizarVenda(lerDados);
+                    break;
+                case 0:
+                    return;
+                default:
+                    System.out.println("Opção inválida. Tente novamente.");
+            }
+        }
+    }
+    
+    
+    
+    private void realizarVenda(Scanner lerDados) {
+        Venda venda = new Venda();
+
+        System.out.print("Nome do Cliente: ");
+        String nomeCliente = lerDados.next();
+        Cliente cliente = buscarClientePorNome(nomeCliente);
+
+        if (cliente == null) {
+            System.out.println("Cliente não encontrado.");
+            return;
+        }
+
+        while (true) {
+            System.out.print("Nome do Produto (ou 0 para finalizar): ");
+            String nomeProduto = lerDados.next();
+
+            if (nomeProduto.equals("0")) {
+                break;
+            }
+
+            Produto produto = buscarProdutoPorNome(nomeProduto);
+
+            if (produto == null) {
+                System.out.println("Produto não encontrado.");
+                continue;
+            }
+
+            System.out.print("Quantidade: ");
+            int quantidade = lerDados.nextInt();
+
+            venda.adicionarItem(produto, quantidade);
+        }
+
+        realizarVenda(venda, cliente);
+        System.out.println("Venda realizada com sucesso!");
+    }
+
+    
+    
+    private Cliente buscarClientePorNome(String nome) {
+        for (Cliente cliente : clientes) {
+            if (cliente.getNome().equalsIgnoreCase(nome)) {
+                return cliente;
+            }
+        }
+        return null;
+    }
+
+    
+    
+    private Produto buscarProdutoPorNome(String nome) {
+        for (Produto produto : produtos) {
+            if (produto.getNome().equalsIgnoreCase(nome) && produto.getEstoque() > 0) {
+                return produto;
+            }
+        }
+        return null;
+    }
+
+    
+    
+    // Métodos adicionados para relatórios e inventário
+    public void gerarRelatorioInventarioAtual() {
+        System.out.println("Inventário Atual:");
+        for (Produto produto : produtos) {
+            System.out.println(produto.getNome() + ": " + produto.getEstoque() + " unidades");
+        }
+    }
+
+
+	
+	public void gerarRelatorioEstoqueBaixo() {
+		System.out.println("Produtos abaxio de 5 unidades:");
+		for(Produto produto : produtos) {
+			if(produto.getEstoque() < 5) {
+				System.out.println(produto.getNome() + ": " + produto.getEstoque() + " unidades");
+			}
+		}
+	}
+	
+	public void gerarRelatorioProdutosMaisVendidos() {
+		// Criando um mapa para armazenar a quantidade total vendida de cada produto
+		Map<Produto, Integer> quantidadeVendidaPorProduto = new HashMap<>();
+		
+		//Iterando sobre todas as vendas para calcular q quantidade total vendida em ordem decrescente
+		for(Venda venda : vendas) {
+			for(Map.Entry<Produto, Integer> entry : venda.getItens().entrySet()) {
+				Produto produto = entry.getKey();
+				int quantidadeVendida = entry.getValue();
+				quantidadeVendidaPorProduto.put(produto, quantidadeVendidaPorProduto.getOrDefault(produto, 0) + quantidadeVendida);
+			}
+		}
+		
+		//Ordenando os produtos com base na quantidade total vendida em ordem decrescente
+        List<Map.Entry<Produto, Integer>> produtosMaisVendidos = new ArrayList<>(quantidadeVendidaPorProduto.entrySet());
+        produtosMaisVendidos.sort((a, b) -> b.getValue().compareTo(a.getValue()));
+
+        
+        //Imprimindo os 5 produtos mais vendidos
+        System.out.println("Produtos mais vendidos:");
+        int count = 0;
+        for (Map.Entry<Produto, Integer> entry : produtosMaisVendidos) {
+            if (count < 5) {
+                Produto produto = entry.getKey();
+                int quantidadeVendida = entry.getValue();
+                System.out.println(produto.getNome() + ": " + quantidadeVendida + " unidades");
+                count++;
+            } else {
+                break;
+            }
+        }
+    }
+	
+	
+	public void salvarDados() {
+        try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream("dados.txt"))) {
+            outputStream.writeObject(clientes);
+            outputStream.writeObject(produtos);
+            outputStream.writeObject(vendas);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void carregarDados() {
+        try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream("dados.txt"))) {
+            clientes = (List<Cliente>) inputStream.readObject();
+            produtos = (List<Produto>) inputStream.readObject();
+            vendas = (List<Venda>) inputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+	
+}
+
+
+
+  class GestaoDeFarmacia {
+	public static void main(String [] args) {
+		Farmacia farmacia = new Farmacia();
+		Scanner lerDados = new Scanner (System.in);
+	
+	while (true) {
+        System.out.println("\n=== Menu Principal ===");
+        System.out.println("1. Clientes");
+        System.out.println("2. Produtos");
+        System.out.println("3. Inventários");
+        System.out.println("4. Vendas");
+        System.out.println("5. Relatórios");
+        System.out.println("0. Sair");
+
+        System.out.print("Escolha uma opção: ");
+        int escolha = lerDados.nextInt();
+
+        switch (escolha) {
+            case 1:
+                menuClientes(farmacia, lerDados);
+                break;
+            case 2:
+                menuProdutos(farmacia, lerDados);
+                break;
+            case 3:
+                farmacia.menuInventarios();
+                break;
+            case 4:
+                farmacia.menuVendas(lerDados);
+                break;
+            case 5:
+                menuRelatorios(farmacia, lerDados);
+                break;
+            case 0:
+                farmacia.salvarDados();  // Salva os dados antes de sair
+                System.out.println("Saindo do sistema. Até logo!");
+                System.exit(0);
+            default:
+                System.out.println("Opção inválida. Tente novamente.");
+        }
+    }
+}
+
+private static void menuClientes(Farmacia farmacia, Scanner scanner) {
+    while (true) {
+        System.out.println("\n=== Menu Clientes ===");
+        System.out.println("1. Adicionar Cliente");
+        System.out.println("2. Remover Cliente");
+        System.out.println("3. Voltar");
+
+        System.out.print("Escolha uma opção: ");
+        int escolha = scanner.nextInt();
+
+        switch (escolha) {
+            case 1:
+                System.out.print("Nome do Cliente: ");
+                String nomeCliente = scanner.next();
+                Cliente novoCliente = new Cliente(nomeCliente);
+                farmacia.adicionarCliente(novoCliente);
+                break;
+            case 2:
+                System.out.print("Nome do Cliente a ser removido: ");
+                String nomeRemoverCliente = scanner.next();
+                farmacia.removerCliente(nomeRemoverCliente);
+                break;
+            case 3:
+                return;
+            default:
+                System.out.println("Opção inválida. Tente novamente.");
+        }
+    }
+}
+
+private static void menuProdutos(Farmacia farmacia, Scanner scanner) {
+    while (true) {
+        System.out.println("\n=== Menu Produtos ===");
+        System.out.println("1. Adicionar Produto");
+        System.out.println("2. Remover Produto");
+        System.out.println("3. Voltar");
+
+        System.out.print("Escolha uma opção: ");
+        int escolha = scanner.nextInt();
+
+        switch (escolha) {
+            case 1:
+                System.out.print("Nome do Produto: ");
+                String nomeProduto = scanner.next();
+                System.out.print("Preço do Produto: ");
+                double precoProduto = scanner.nextDouble();
+                System.out.print("Quantidade em Estoque: ");
+                int estoqueProduto = scanner.nextInt();
+                Produto novoProduto = new Produto(nomeProduto, precoProduto, estoqueProduto);
+                farmacia.adicionarProduto(novoProduto);
+                break;
+            case 2:
+                System.out.print("Nome do Produto a ser removido: ");
+                String nomeRemoverProduto = scanner.next();
+                farmacia.removerProduto(nomeRemoverProduto);
+                break;
+            case 3:
+                return;
+            default:
+                System.out.println("Opção inválida. Tente novamente.");
+        }
+    }
+}
+
+private static void menuRelatorios(Farmacia farmacia, Scanner lerDados) {
+    while (true) {
+        System.out.println("\n=== Menu Relatórios ===");
+        System.out.println("1. Relatório Estoque Baixo");
+        System.out.println("2. Relatório Produtos Mais Vendidos");
+        System.out.println("0. Voltar");
+
+        System.out.print("Escolha uma opção: ");
+        int escolha = lerDados.nextInt();
+
+        switch (escolha) {
+            case 1:
+                farmacia.gerarRelatorioEstoqueBaixo();
+                break;
+            case 2:
+                farmacia.gerarRelatorioProdutosMaisVendidos();
+                break;
+            case 0:
+                return;
+            default:
+                System.out.println("Opção inválida. Tente novamente.");
+        }
+    }
+}
+
+}
+
+
+
+  class Produto {
+	private String nome;
+	private double preco;
+	private int estoque;
+	
+	public Produto(String nome, double preco, int estoque) {
+		this.nome = nome;
+		this.preco = preco;
+		this.estoque = estoque;
+		
+	}
+	
+	public String getNome() {
+		return nome;
+	}
+	
+	public double getPreco() {
+		return preco;
+	}
+	
+	public int getEstoque() {
+		return estoque;
+	}
+	
+	public void atualizarEstoque(int quantidade) {
+		this.estoque += quantidade;
+	}
+
+}
+
+
+
+  class Venda {
+	private Map<Produto, Integer> itens;
+	
+	public Venda() {
+		this.itens = new HashMap<>();
+		
+	}
+	
+	public void adicionarItem(Produto produto, int quantidade) {
+		if(produto.getEstoque() >= quantidade) {
+			this.itens.put(produto, quantidade);
+			produto.atualizarEstoque(- quantidade);
+		} else {
+			System.out.println("O produto " + produto.getNome() + " nao esta disponivel no stock!");
+		}
+	}
+	
+	public double calcularTotal() {
+		double total = 0.0;
+		for(Map.Entry<Produto, Integer> entry : itens.entrySet()) {
+			Produto produto = entry.getKey();
+			int quantidade = entry.getValue();
+			total += produto.getPreco() * quantidade;
+		}
+		return total;
+	}
+
+	public Map<Produto, Integer> getItens1() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Map<Produto, Integer> getItens() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}
+
