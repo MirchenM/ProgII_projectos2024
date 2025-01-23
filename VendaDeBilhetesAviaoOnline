@@ -1,0 +1,274 @@
+package VendaDeBilhetesAviaoOnline;
+
+//Importando as classes a usar 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+
+
+//Classe CompraBilhete
+public class CompraBilhete {
+	
+	//Declaracao de variaveis 
+    private List<Bilhete> bilhetesDisponiveis;
+    private Scanner scanner;
+    private Map<String, User> users;
+    private User currentUser;
+
+    
+    //Metodo para comprar bilhete
+    public CompraBilhete() {
+        bilhetesDisponiveis = new ArrayList<>();
+        scanner = new Scanner(System.in);
+        users = new HashMap<>();
+        currentUser = null;
+    }
+
+    //Metodo para adicionar bilhetes 
+    public void adicionarBilhete(Bilhete bilhete) {
+        bilhetesDisponiveis.add(bilhete);
+    }
+
+    
+    //Metodo para listar os bilhetes disponiveis 
+    public void listarBilhetesDisponiveis() {
+        System.out.println("Bilhetes Disponiveis:"); //Mostrando na tela uma mensagem na tela dizendo Bilhetes Disponiveis 
+        for (int i = 0; i < bilhetesDisponiveis.size(); i++) {
+            System.out.println((i + 1) + ". " + bilhetesDisponiveis.get(i)); //
+        }
+    }
+
+    
+    //Metodo para comprar bilhete
+    public void comprarBilhete(int numeroBilhete) {
+        if (numeroBilhete >= 1 && numeroBilhete <= bilhetesDisponiveis.size()) { //Testando se o numero de bilhetes que o cliente deseja comprar e maior ou igual a 1 e se o numero de bilhetes que ele deseja comprar e menor ou igual que o numero de bilhetes disponiveis 
+            Bilhete bilheteSelecionado = bilhetesDisponiveis.get(numeroBilhete - 1); //Testando se o bilhete seleccionado esta dentro dos bilhetes disponiveis e, se sim, fara -1 nos bilhetes disponiveis
+            System.out.println("Voce selecionou o bilhete para " + bilheteSelecionado.getDestino()); //Indica o destin do bilhete escolhido 
+            System.out.println("Por favor, escolha o metodo de pagamento:"); //Pede que o usuario insira um metodo de pagamento 
+            System.out.println("1. Cartao de Debito"); //Pagar com cartao de debito 
+            System.out.println("2. Conta Movel"); //Pagar com conta movel 
+            int opcaoPagamento = scanner.nextInt(); //Inserindo a opcao de pagamento 
+            scanner.nextLine(); //Lendo a opcao de pagamento
+
+            double precoFinal = bilheteSelecionado.getPreco(); //Recebendo o preco do bilhete seleccionado
+
+            System.out.println("Digite a idade do passageiro:"); //Pedindo para inserir a idade do passageiro 
+            int idade = scanner.nextInt(); //Inserindo a idade do passageiro 
+            scanner.nextLine(); //Lendo a idade do passageiro 
+
+            if (idade < 12 || idade >= 60) { //Testando se o passageiro e menor de 12 anos e maior de 60 anos 
+                System.out.println("Parabens! Voce tem direito a um desconto de 20%!"); //Oferecendo um desconto de 20% a passageiros com idade inferior a 12 e superior a 60
+                precoFinal -= precoFinal * 0.2; //Calculando o preco final incluindo o desconto 
+            }
+
+            if (opcaoPagamento == 1) { //Escolhendo a opcao de pagamento 
+                System.out.println("Total a pagar: " + precoFinal + " (Pagamento por Cartao de Debito)"); //Cartao de Debito foi escolhido como opcao de pagamento
+            } else if (opcaoPagamento == 2) {
+                System.out.println("Total a pagar: " + precoFinal + " (Pagamento por Conta Movel)"); //Conta Movel foi escolhida como opcao de pagamento 
+            } else {
+                System.out.println("Opcao de pagamento invalida."); //Mostrando uma mensagem dizendo que a opcao de pagamento e invalida 
+                return;
+            }
+
+            System.out.println("Confirme a compra? (S/N)"); //Pedindo ao usuario para confirmar a compra do bilhete 
+            String confirmacao = scanner.nextLine(); //Confirmacao 
+
+            if (confirmacao.equalsIgnoreCase("S")) { //Testando se o cliente inseriu "S" que confirma a compra do bilhete 
+                System.out.println("Parabens! Voce comprou um bilhete para " + bilheteSelecionado.getDestino() + " por " + precoFinal + "."); //Mostrando uma mensagem na tela dizendo que o bilhete foi comprado com sucesso
+                bilhetesDisponiveis.remove(numeroBilhete - 1); //Removendo o bilhete comprado da lista de bilhetes disponiveis 
+            } else {
+                System.out.println("Compra cancelada!"); //Mostrando uma mensagem na tela dizendo que a compra foi cancelada 
+            }
+        } else {
+            System.out.println("Desculpe, o bilhete selecionado não está disponivel."); //Mostrando uma mensagem na tela dizendo que o bilhete selecionado nao se encontra disponivel 
+        }
+    }
+
+    
+    //Metodo para iniciar a compra 
+    public void iniciarCompra() {
+        System.out.println("Bem-vindo ao Sistema de Compra de Bilhetes Online!"); //Mostrando uma mensagem na tela dando as boas-vindas ao clinete ao Sistema de Compra de Bilhetes Online
+
+        while (true) {
+            if (currentUser == null) {
+                System.out.println("\nEscolha uma opcao:"); //Mostrando uma mensagem na tela dizendo ao cliente para escolher uma opcao
+                System.out.println("1. Sign Up (Criar uma conta)"); //Opcao 1, para criar uma conta 
+                System.out.println("2. Login"); //Opcao 2, para o cliente efectuar o LogIn
+                System.out.println("3. Sair"); //Opcao 3, para o cliente sair do Sistema
+
+                int opcao = scanner.nextInt();
+                scanner.nextLine();
+
+                if (opcao == 1) { //Se o cliente escolheu a opcao 1 (SignUp)
+                    signUp(); //Fara o SignUp
+                } else if (opcao == 2) { //Se o cliente escolheu a opcao 2 (LogIn)
+                    login(); //Fara o LogIn
+                } else if (opcao == 3) { //Se o cliente escolheu a opcao 3 (Sair)
+                    System.out.println("Obrigado por usar nosso Sistema. Volte sempre!"); //Mostrando uma mensagem na tela agradecendo a sua entrada no nosso sistema e desejando que ele volte mai vezes ao nosso site 
+                    break;
+                } else {
+                    System.out.println("Opcao invalida. Digite novamente."); //Mostrando uma mensagem na tela dizendo ao cliente que a opcao por ele inserida e invalida e que tente digitar novamente a opcao
+                }
+            } else {
+                System.out.println("\nOla, " + currentUser.getUsername() + "!"); //Dando as boas-vindas a nova janela do sistema de compra de bilhetes online
+                System.out.println("Escolha uma opaoo:"); //Mostrando uma mensagem na tela dizendo ao usuario para escolher uma opcao
+                System.out.println("1. Listar bilhetes disponiveis"); //Opcao 1, lista os bilhetes disponiveis 
+                System.out.println("2. Comprar um bilhete"); //Opcao 2, redireciona o cliente para uma janela onde podera fazer a compra do bilhete
+                System.out.println("3. Logout"); //Opcao 3, faz o LogOut
+
+                int opcao = scanner.nextInt();
+                scanner.nextLine();
+
+                if (opcao == 1) { //Se o cliente escolheu a opcao 1 (Lista os bilhetes disponiveis)
+                    listarBilhetesDisponiveis(); //Mostra a lista dos bilhetes disponiveis 
+                } else if (opcao == 2) { //Se o cliente escolheu a opcao 2 (janela onde podera fazer a compra do bilhete)
+                    System.out.println("Digite o numero do bilhete que deseja comprar:"); //Pedindo ao clinete para digitar o numero de bilhete que deseja comprar 
+                    int numeroBilhete = scanner.nextInt(); //Inserindo o numero de bilhete a ser comprado
+                    scanner.nextLine(); //Lendo o numero de bilhete a ser comprado 
+                    comprarBilhete(numeroBilhete); 
+                } else if (opcao == 3) { //Se o cliente escolheu a opcao 3 (LogOut)
+                    currentUser = null; //Mostra uma mensagem na tela dizendo NULL
+                    System.out.println("Logout realizado com sucesso!"); //Mostrando uma mensagem na tela dizendo que o LogOut foi realizado com sucesso 
+                } else {
+                    System.out.println("Opcao invalida. Digite novamente!"); //Mostrando uma mensagem na tela dizendo que a opcao inserida e invalida e pedindo ao cliente para digitar novamente
+                }
+            }
+        }
+    }
+
+    
+    //Metodo que faz o SignUp
+    private void signUp() {
+        System.out.println("===== Sign Up ====="); //Mostra uma mensagem pedindo para o usuario fazer o SignUp
+        System.out.println("Digite o nome de usuario:"); //Pedindo ao usuario para inserir o seu nome de usuario
+        String username = scanner.nextLine(); //Lendo o nome de usuario
+        System.out.println("Digite a senha:"); //Pedindo ao usuario para inserir uma senha 
+        String password = scanner.nextLine(); //Lendo a senha inserida 
+
+        if (users.containsKey(username)) { //Tesntando se o usuario ja tem uma conta 
+            System.out.println("Usuario ja existente! Por favor, tente novamente."); //Mostrando uma mensagem dizendo para o usuario voltar a tentar, porque o usuario inserido ja existe 
+        } else {
+            User newUser = new User(username, password); //Pedindo um nome nome de usuario e uma nova senha 
+            users.put(username, newUser); //Inserindo o novo nome de usuario e uma nova senha 
+            System.out.println("Cadastro realizado com sucesso! Agora voce pode fazer login."); //Mostrando uma mensagem dizendo que o cadastro foi realizado com sucesso e que agora pode efectuar o LogIn 
+        }
+    }
+
+    //Pedindo ao usuario para efectuar o LogIn
+    private void login() {
+        System.out.println("===== Login ====="); //Mostra uma mensagem pedindo para o usuario fazer o LogIn
+        System.out.println("Digite o nome de usuario:"); //Pedindo ao usuario para inserir o nome de usuario 
+        String username = scanner.nextLine(); //Lendo o nome de usuario que foi inserido 
+        System.out.println("Digite a senha:"); //Pedindo ao usuario para inserir uma senha 
+        String password = scanner.nextLine(); //Lendo a senha inserida 
+
+        if (users.containsKey(username)) {
+            User user = users.get(username);
+            if (user.getPassword().equals(password)) {
+                currentUser = user;
+                System.out.println("Login realizado com sucesso! Bem-vindo, " + currentUser.getUsername() + "!"); //Mostrando uma mensagem dizendo que o LogIn foi efectuado com sucesso 
+            } else {
+                System.out.println("Senha incorreta. Por favor, tente novamente."); //Pedindo ao usuario que volte a inserir a sua senha 
+            }
+        } else {
+            System.out.println("Usuario nao encontrado. Por favor, tente novamente."); //Pedindo ao usuario para voltar a efectuar o login, porque o seu nome de usuario nao foi encontrado
+        }
+    }
+
+    
+    //Metodo principal que vai chamar todas as classes 
+    public static void main(String[] args) {
+        CompraBilhete compra = new CompraBilhete();
+
+        //Criando alguns bilhetes, destinos e valores de cada bilhete 
+        Bilhete bilhete1 = new Bilhete("Mirchen Miguel D. Maibaze", "Franca", 40000.00);
+        Bilhete bilhete2 = new Bilhete("Ammarah Ismael Ilal A. Ilal", "Franca", 40000.00);
+        Bilhete bilhete3 = new Bilhete("Timilde Miguel D. Maibaze", "Italia", 60000.0);
+        Bilhete bilhete4 = new Bilhete("Joao Dionisio Tumbo", "Barcelona", 50000.00);
+        Bilhete bilhete5 = new Bilhete("Wozy Joao X. Machava", "Italia", 60000.00);
+        Bilhete bilhete6 = new Bilhete("Yuran G. Nhaguaga", "Inglaterra", 80000.00);
+        Bilhete bilhete7 = new Bilhete("Cesar Samuel Manjate", "Brasil", 50000.00);
+        Bilhete bilhete8 = new Bilhete("Euclesia Quiasse B. Mucasse", "Franca", 25000.00);
+        Bilhete bilhete9 = new Bilhete("Euclesia Quiasse B. Mucasse", "Portugal",25000.00);
+
+        
+        //Adicionar bilhetes a lista de bilhetes disponiveis
+        compra.adicionarBilhete(bilhete1);
+        compra.adicionarBilhete(bilhete2);
+        compra.adicionarBilhete(bilhete3);
+        compra.adicionarBilhete(bilhete4);
+        compra.adicionarBilhete(bilhete5);
+        compra.adicionarBilhete(bilhete6);
+        compra.adicionarBilhete(bilhete7); 
+        compra.adicionarBilhete(bilhete8);
+        compra.adicionarBilhete(bilhete9);
+        
+        //Iniciar a compra do bilhete 
+        compra.iniciarCompra();
+    }
+}
+
+
+
+class User {
+
+		//Declaracao de variaveis 
+	    private String username;
+	    private String password;
+
+	    //Metodo User
+	    public User(String username, String password) {
+	        this.username = username; //Recebe o nome de usuario
+	        this.password = password; //Recebe a senha do usuario
+	    }
+
+	    
+	    //Getters & Setters 
+	    public String getUsername() {
+	        return username;
+	    }
+
+	    public String getPassword() {
+	        return password;
+	    }
+	}
+
+
+
+class Bilhete {
+	
+	//Declaracao de variaveis 
+    private String nome;
+    private String destino;
+    private double preco;
+
+    
+    //Metodo Billhete
+    public Bilhete(String nome, String destino, double preco) {
+        this.nome = nome; //Recebendo o nome 
+        this.destino = destino; //Recebendo o destino 
+        this.preco = preco; //Recebendo o preco
+    }
+
+    
+    //Getters & Setters 
+    public String getNome() {
+        return nome;
+    }
+
+    public String getDestino() {
+        return destino;
+    }
+
+    public double getPreco() {
+        return preco;
+    }
+
+    @Override
+    //Metodo construtor
+    public String toString() {
+        return "Nome: " + nome + ", Destino: " + destino + ", Preço: " + preco; //Retorna o nome do cliente, o destino do bihete e o preco do bilhete 
+    }
+}
