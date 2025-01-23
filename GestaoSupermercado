@@ -1,0 +1,562 @@
+package GestaoSupermercado;
+
+import java.util.Date;
+import java.util.List;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+public class Produto {
+	
+	private String nome;
+    private double preco;
+    private int estoque;
+
+    public Produto(String nome, double preco, int estoque) {
+        this.nome = nome;
+        this.preco = preco;
+        this.estoque = estoque;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public double getPreco() {
+        return preco;
+    }
+
+    public void setPreco(double preco) {
+        this.preco = preco;
+    }
+
+    public int getEstoque() {
+        return estoque;
+    }
+
+    public void setEstoque(int estoque) {
+        this.estoque = estoque;
+    }
+
+    @Override
+    public String toString() {
+        return "Produto [nome=" + nome + ", preco=" + preco + ", estoque=" + estoque + "]";
+    }
+	
+
+}
+
+
+
+class Venda {
+	private Cliente cliente;
+    private List<Produto> produtos;
+    private Date data;
+    private double total;
+
+    public Venda(Cliente cliente, List<Produto> produtos, Date data) {
+        this.cliente = cliente;
+        this.produtos = produtos;
+        this.data = data;
+        calcularTotal();
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
+
+    public List<Produto> getProdutos() {
+        return produtos;
+    }
+
+    public void setProdutos(List<Produto> produtos) {
+        this.produtos = produtos;
+        calcularTotal();
+    }
+
+    public Date getData() {
+        return data;
+    }
+
+    public void setData(Date data) {
+        this.data = data;
+    }
+
+    public double getTotal() {
+        return total;
+    }
+
+    private void calcularTotal() {
+        total = 0.0;
+        for (Produto produto : produtos) {
+            total += produto.getPreco();
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Venda [cliente=" + cliente + ", produtos=" + produtos + ", data=" + data + ", total=" + total + "]";
+    }
+
+}
+
+
+
+class Cliente {
+	private String nome;
+    private String cpf;
+    // Outros atributos e métodos necessários
+
+    // Construtores, getters e setters
+    public Cliente(String nome, String cpf) {
+    	this.nome = nome;
+    	this.cpf = cpf;
+    	
+    }
+    
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
+    }
+
+    @Override
+    public String toString() {
+        return "Cliente [nome=" + nome + ", cpf=" + cpf + "]";
+    }
+
+}
+
+
+
+class Supermercado {
+	
+	/*private static final String CLIENTES_FILE = "clientes.dat";
+    private static final String PRODUTOS_FILE = "produtos.dat";
+    private static final String VENDAS_FILE = "vendas.dat";*/
+    private List<Cliente> clientes;
+    private List<Produto> produtos;
+    private List<Venda> vendas;
+
+        public Supermercado() {
+            this.clientes = new ArrayList<>();
+            this.produtos = new ArrayList<>();
+            this.vendas = new ArrayList<>();
+            // Carregar dados do arquivo
+            //carregarDados();
+        }
+
+        public static void main(String[] args) {
+            Supermercado supermercado = new Supermercado();
+            supermercado.menuPrincipal();
+        }
+
+        /*private void carregarDados() {
+            clientes = carregarClientes(CLIENTES_FILE);
+            produtos = carregarProdutos(PRODUTOS_FILE);
+            vendas = carregarVendas(VENDAS_FILE);
+        }
+
+        private void salvarDados() {
+            salvarClientes(CLIENTES_FILE, clientes);
+            salvarProdutos(PRODUTOS_FILE, produtos);
+            salvarVendas(VENDAS_FILE, vendas);
+        }
+
+        private List<Cliente> carregarClientes(String fileName) {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))) {
+                return (List<Cliente>) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                // Se ocorrer uma exceção, retornar uma lista vazia
+                return new ArrayList<>();
+            }
+        }
+
+        private void salvarClientes(String fileName, List<Cliente> clientes) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName))) {
+                oos.writeObject(clientes);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private List<Produto> carregarProdutos(String fileName) {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))) {
+                return (List<Produto>) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                // Se ocorrer uma exceção, retornar uma lista vazia
+                return new ArrayList<>();
+            }
+        }
+
+        private void salvarProdutos(String fileName, List<Produto> produtos) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName))) {
+                oos.writeObject(produtos);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private List<Venda> carregarVendas(String fileName) {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))) {
+                return (List<Venda>) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                // Se ocorrer uma exceção, retornar uma lista vazia
+                return new ArrayList<>();
+            }
+        }
+
+        private void salvarVendas(String fileName, List<Venda> vendas) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName))) {
+                oos.writeObject(vendas);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }*/
+
+        public void menuPrincipal() {
+            Scanner scanner = new Scanner(System.in);
+            int opcao;
+
+            do {
+                System.out.println("1. Clientes");
+                System.out.println("2. Produtos");
+                System.out.println("3. Inventarios");
+                System.out.println("4. Vendas");
+                System.out.println("5. Relatorios");
+                System.out.println("0. Sair");
+
+                System.out.print("Escolha uma opcao: ");
+                opcao = scanner.nextInt();
+
+                switch (opcao) {
+                    case 1:
+                        menuClientes();
+                        break;
+                    case 2:
+                        menuProdutos();
+                        break;
+                    case 3:
+                        // Implemente o menu de inventários
+                        break;
+                    case 4:
+                        // Implemente o menu de vendas
+                        break;
+                    case 5:
+                        // Implemente o menu de relatórios
+                        break;
+                    case 0:
+                        System.out.println("Saindo do programa...");
+                        break;
+                    default:
+                        System.out.println("Opcao invalida. Tente novamente.");
+                }
+            } while (opcao != 0);
+
+            // Ao sair do programa, salvar os dados
+           // salvarDados();
+        }
+
+        private void menuClientes() {
+            Scanner scanner = new Scanner(System.in);
+            int opcao;
+
+            do {
+                System.out.println("1. Adicionar Cliente");
+                System.out.println("2. Remover Cliente");
+                System.out.println("3. Listar Clientes");
+                System.out.println("0. Voltar");
+
+                System.out.print("Escolha uma opcao: ");
+                opcao = scanner.nextInt();
+
+                switch (opcao) {
+                    case 1:
+                        adicionarCliente();
+                        break;
+                    case 2:
+                        removerCliente();
+                        break;
+                    case 3:
+                        listarClientes();
+                        break;
+                    case 0:
+                        System.out.println("Voltando ao menu principal...");
+                        break;
+                    default:
+                        System.out.println("Opcao invalida. Tente novamente.");
+                }
+            } while (opcao != 0);
+        }
+
+        private void adicionarCliente() {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Nome do cliente: ");
+            String nome = scanner.nextLine();
+            System.out.print("CPF do cliente: ");
+            String cpf = scanner.nextLine();
+
+            Cliente cliente = new Cliente(nome, cpf);
+            clientes.add(cliente);
+
+            System.out.println("Cliente adicionado com sucesso!");
+        }
+
+        private void removerCliente() {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Digite o CPF do cliente a ser removido: ");
+            String cpf = scanner.nextLine();
+
+            Cliente clienteRemover = null;
+            for (Cliente cliente : clientes) {
+                if (cliente.getCpf().equals(cpf)) {
+                    clienteRemover = cliente;
+                    break;
+                }
+            }
+
+            if (clienteRemover != null) {
+                clientes.remove(clienteRemover);
+                System.out.println("Cliente removido com sucesso!");
+            } else {
+                System.out.println("Cliente não encontrado.");
+            }
+        }
+
+        private void listarClientes() {
+            System.out.println("Lista de Clientes:");
+            for (Cliente cliente : clientes) {
+                System.out.println(cliente);
+            }
+        }
+
+        private void menuProdutos() {
+            Scanner scanner = new Scanner(System.in);
+            int opcao;
+
+            do {
+                System.out.println("1. Adicionar Produto");
+                System.out.println("2. Remover Produto");
+                System.out.println("3. Listar Produtos");
+                System.out.println("0. Voltar");
+
+                System.out.print("Escolha uma opcao: ");
+                opcao = scanner.nextInt();
+
+                switch (opcao) {
+                    case 1:
+                        adicionarProduto();
+                        break;
+                    case 2:
+                        removerProduto();
+                        break;
+                    case 3:
+                        listarProdutos();
+                        break;
+                    case 0:
+                        System.out.println("Voltando ao menu principal...");
+                        break;
+                    default:
+                        System.out.println("Opcao invalida. Tente novamente.");
+                }
+            } while (opcao != 0);
+        }
+
+        private void adicionarProduto() {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Nome do produto: ");
+            String nome = scanner.nextLine();
+            System.out.print("Preco do produto: ");
+            double preco = scanner.nextDouble();
+            System.out.print("Quantidade em estoque: ");
+            int estoque = scanner.nextInt();
+
+            Produto produto = new Produto(nome, preco, estoque);
+            produtos.add(produto);
+
+            System.out.println("Produto adicionado com sucesso!");
+        }
+
+        private void removerProduto() {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Digite o nome do produto a ser removido: ");
+            String nome = scanner.nextLine();
+
+            Produto produtoRemover = null;
+            for (Produto produto : produtos) {
+                if (produto.getNome().equals(nome)) {
+                    produtoRemover = produto;
+                    break;
+                }
+            }
+
+            if (produtoRemover != null) {
+                produtos.remove(produtoRemover);
+                System.out.println("Produto removido com sucesso!");
+            } else {
+                System.out.println("Produto não encontrado.");
+            }
+        }
+
+        private void listarProdutos() {
+            System.out.println("Lista de Produtos:");
+            for (Produto produto : produtos) {
+                System.out.println(produto);
+            }
+        }
+        
+        
+        private void menuInventarios() {
+            Scanner scanner = new Scanner(System.in);
+            int opcao;
+
+            do {
+                System.out.println("1. Produtos abaixo de 5 unidades");
+                System.out.println("2. Produtos mais vendidos");
+                System.out.println("0. Voltar");
+
+                System.out.print("Escolha uma opcao: ");
+                opcao = scanner.nextInt();
+
+                switch (opcao) {
+                    case 1:
+                        produtosAbaixoCincoUnidades();
+                        break;
+                    case 2:
+                        produtosMaisVendidos();
+                        break;
+                    case 0:
+                        System.out.println("Voltando ao menu principal...");
+                        break;
+                    default:
+                        System.out.println("Opcao invalida. Tente novamente.");
+                }
+            } while (opcao != 0);
+        }
+
+        private void produtosAbaixoCincoUnidades() {
+            System.out.println("Produtos abaixo de 5 unidades:");
+            for (Produto produto : produtos) {
+                if (produto.getEstoque() < 5) {
+                    System.out.println(produto);
+                }
+            }
+        }
+
+        private void produtosMaisVendidos() {
+            // Lógica para identificar e exibir os produtos mais vendidos
+            // Pode ser necessário modificar a classe Venda para manter um histórico de vendas
+            // e implementar a contagem de vendas para cada produto.
+            System.out.println("Produtos mais vendidos:");
+            // Implemente a lógica conforme necessário
+        }
+
+        private void menuVendas() {
+            Scanner scanner = new Scanner(System.in);
+            int opcao;
+
+            do {
+                System.out.println("1. Criar Venda a Dinheiro");
+                System.out.println("2. Ver conta corrente do Cliente");
+                System.out.println("0. Voltar");
+
+                System.out.print("Escolha uma opcao: ");
+                opcao = scanner.nextInt();
+
+                switch (opcao) {
+                    case 1:
+                        criarVendaDinheiro();
+                        break;
+                    case 2:
+                        verContaCorrente();
+                        break;
+                    case 0:
+                        System.out.println("Voltando ao menu principal...");
+                        break;
+                    default:
+                        System.out.println("Opcao invalida. Tente novamente.");
+                }
+            } while (opcao != 0);
+        }
+
+        private void criarVendaDinheiro() {
+            // Lógica para criar uma venda a dinheiro
+            // Pode ser necessário interagir com o usuário para selecionar produtos, cliente, etc.
+            // Além disso, a lógica deve incluir o cálculo do total e a atualização do estoque dos produtos.
+            System.out.println("Implemente a lógica para criar uma venda a dinheiro.");
+        }
+
+        private void verContaCorrente() {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Digite o CPF do cliente: ");
+            String cpf = scanner.nextLine();
+
+            Cliente clienteEncontrado = null;
+            for (Cliente cliente : clientes) {
+                if (cliente.getCpf().equals(cpf)) {
+                    clienteEncontrado = cliente;
+                    break;
+                }
+            }
+
+            if (clienteEncontrado != null) {
+                // Lógica para exibir a conta corrente do cliente
+                // Pode incluir a listagem das vendas associadas ao cliente.
+                System.out.println("Implemente a lógica para exibir a conta corrente do cliente.");
+            } else {
+                System.out.println("Cliente não encontrado.");
+            }
+        }
+
+        private void menuRelatorios() {
+            Scanner scanner = new Scanner(System.in);
+            int opcao;
+
+            do {
+                System.out.println("1. Produtos abaixo de 5 unidades");
+                System.out.println("2. Produtos mais vendidos");
+                System.out.println("0. Voltar");
+
+                System.out.print("Escolha uma opcao: ");
+                opcao = scanner.nextInt();
+
+                switch (opcao) {
+                    case 1:
+                        produtosAbaixoCincoUnidades();
+                        break;
+                    case 2:
+                        produtosMaisVendidos();
+                        break;
+                    case 0:
+                        System.out.println("Voltando ao menu principal...");
+                        break;
+                    default:
+                        System.out.println("Opcao invalida. Tente novamente.");
+                }
+            } while (opcao != 0);
+        }
+        
+}
