@@ -1,0 +1,379 @@
+package GestaoParqueEstacionamento;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Random;
+
+public class Estacionamento {
+	 private List<Veiculo> carros;
+	 private List<VagaDeEstacionamento> vagas;
+	 private Map<Veiculo, RegistroDeEstacionamento> registros;
+	 private Date horaEntrada;
+	 private SimpleDateFormat sdf;
+	 
+
+	    public Estacionamento(int numVagas) {
+	        carros = new ArrayList<>();
+	        vagas = new ArrayList<>();
+	        registros = new HashMap<>();
+
+	        for (int i = 1; i <= numVagas; i++) {
+	            vagas.add(new VagaDeEstacionamento(i));
+	        }
+	    }
+
+	    public void criarVeiculo1() {
+	        Veiculo novoVeiculo = new Veiculo(GeradorDeMatricula.gerarMatricula(), "Carro");
+	        carros.add(novoVeiculo);
+	        System.out.println("Novo veiculo criado: " + novoVeiculo);
+	    }
+
+	    public void removerVeiculo(Veiculo veiculo) {
+	        carros.remove(veiculo);
+	        System.out.println("Veiculo removido: " + veiculo);
+	    }
+
+	    public void criarVaga() {
+	        int novaVagaNumero = vagas.size() + 1;
+	        VagaDeEstacionamento novaVaga = new VagaDeEstacionamento(novaVagaNumero);
+	        vagas.add(novaVaga);
+	        System.out.println("Nova vaga criada: Vaga " + novaVagaNumero);
+	    }
+
+	    public void removerVaga(int numeroVaga) {
+	        vagas.removeIf(vaga -> vaga.getNumero() == numeroVaga);
+	        System.out.println("Vaga removida: Vaga " + numeroVaga);
+	    }
+
+	    public void exibirVagasDisponiveis1() {
+	        System.out.println("Vagas disponiveis:");
+	        for (VagaDeEstacionamento vaga : vagas) {
+	            if (!vaga.isOcupada()) {
+	                System.out.println("Vaga " + vaga.getNumero());
+	            }
+	        }
+	    }
+
+	    public void monitorarSistemaVigilancia() {
+	        System.out.println("\nSistema de Vigilancia:");
+
+	        for (VagaDeEstacionamento vaga : vagas) {
+	            if (vaga.isOcupada()) {
+	                Veiculo veiculo = vaga.getRegistro().getVeiculo();
+	                horaEntrada = vaga.getRegistro().getHoraEntrada();
+	                sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
+	                System.out.println("Vaga " + vaga.getNumero() + ":");
+	                System.out.println("Veiculo: " + veiculo);
+	                System.out.println("Hora de Entrada: " + sdf.format(horaEntrada));
+	            }
+	        }
+	    }
+
+	    public void emitirRelatorio() {
+	        System.out.println("\nRelatorio de Carros Registrados no Estacionamento:");
+
+	        for (VagaDeEstacionamento vaga : vagas) {
+	            if (vaga.isOcupada()) {
+	                Veiculo veiculo = vaga.getRegistro().getVeiculo();
+	                RegistroDeEstacionamento registro = vaga.getRegistro();
+	                sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
+	                System.out.println("Veiculo: " + veiculo);
+	                System.out.println("Hora de Entrada: " + sdf.format(registro.getHoraEntrada()));
+	                System.out.println("Hora de Saida: " + (registro.getHoraSaida() != null ? sdf.format(registro.getHoraSaida()) : "Veiculo ainda no estacionamento"));
+	                System.out.println("Tempo Estacionado: " + (registro.getHoraSaida() != null ? registro.getHoraSaida().getTime() - registro.getHoraEntrada().getTime() + "ms" : "Veiculo ainda no estacionamento"));
+	                System.out.println();
+	            }
+	        }
+	    }
+
+	    public static void main(String[] args) {
+	        Estacionamento estacionamento = new Estacionamento(20);
+
+	        estacionamento.exibirMenuPrincipal();
+	    }
+
+	    public void exibirMenuPrincipal() {
+	        Scanner lerValores = new Scanner(System.in);
+
+	        int opcao;
+
+	        do {
+	        	System.out.println();
+	        	System.out.println("========== BEM VINDO/A AO PARQUE DE ESTACIONAMENTO DO ISUTC ==========");
+	            System.out.println("\n MENU PRINCIPAL \n");
+	            System.out.println("1. MENU DE VEICULOS");
+	            System.out.println("2. MENU DE VAGAS DE ESTACIONAMENTO");
+	            System.out.println("3. MONITORAR SISTEMA DE VIGILANCIA");
+	            System.out.println("4. EMITIR RELATORIOS DE VEICULOS");
+	            System.out.println("0. SAIR");
+
+	            System.out.print("Escolha uma opcao: ");
+	            opcao = lerValores.nextInt();
+
+	            switch (opcao) {
+	                case 1:
+	                    exibirMenuVeiculos();
+	                    break;
+	                case 2:
+	                    exibirMenuVagas();
+	                    break;
+	                case 3:
+	                    monitorarSistemaVigilancia();
+	                    break;
+	                case 4:
+	                    emitirRelatorio();
+	                    break;
+	                case 0:
+	                    System.out.println("Sistema encerrado."
+	                    		+ " Obrigado por usar os nossos servicos, boa viagem e volte sempre!");
+	                    break;
+	                default:
+	                    System.out.println("Opcao invalida! Tente novamente.");
+	            }
+	        } while (opcao != 5);
+
+	        lerValores.close();
+	    }
+
+	    private void exibirMenuVeiculos() {
+	        Scanner lerValores = new Scanner(System.in);
+	        int opcao;
+
+	        do {
+	            System.out.println("\n VEICULOS \n");
+	            System.out.println("1. Adicionar Veiculo");
+	            System.out.println("2. Remover Veiculo");
+	            System.out.println("3. Voltar");
+
+	            System.out.print("Escolha uma opcao: ");
+	            opcao = lerValores.nextInt();
+
+	            switch (opcao) {
+	                case 1:
+	                    criarVeiculo();
+	                    break;
+	                case 2:
+	                    removerVeiculo();
+	                    break;
+	                case 3:
+	                    System.out.println("Voltando ao Menu Principal.");
+	                    break;
+	                default:
+	                    System.out.println("Opcao invalida! Tente novamente.");
+	            }
+	        } while (opcao != 3);
+	        lerValores.close();
+	    }
+
+	    private void criarVeiculo() {
+	        Veiculo novoVeiculo = new Veiculo(GeradorDeMatricula.gerarMatricula(), "Carro");
+	        carros.add(novoVeiculo);
+	        System.out.println("Novo veiculo criado: " + novoVeiculo);
+	    }
+
+	    private void removerVeiculo() {
+	        Scanner lerValores = new Scanner(System.in);
+
+	        System.out.print("Digite a placa do veiculo a ser removido: ");
+	        String placa = lerValores.nextLine();
+
+	        Veiculo veiculoParaRemover = null;
+
+	        for (Veiculo veiculo : carros) {
+	            if (veiculo.getPlaca().equalsIgnoreCase(placa)) {
+	                veiculoParaRemover = veiculo;
+	                break;
+	            }
+	        }
+
+	        if (veiculoParaRemover != null) {
+	            carros.remove(veiculoParaRemover);
+	            System.out.println("O veiculo foi removido com sucesso!");
+	        } else {
+	            System.out.println("O veiculo nao foi encontrado!");
+	        }
+	        lerValores.close();
+	    }
+
+	    private void exibirMenuVagas() {
+	        Scanner lerValores = new Scanner(System.in);
+	        int opcao;
+
+	        do {
+	            System.out.println("\n VAGAS DE ESTACIONAMENTO \n");
+	            System.out.println("1. Criar Nova Vaga");
+	            System.out.println("2. Remover Vaga Existente");
+	            System.out.println("3. Visualizar Vagas Disponiveis");
+	            System.out.println("4. Voltar");
+
+	            System.out.print("Escolha uma opcao: ");
+	            opcao = lerValores.nextInt();
+
+	            switch (opcao) {
+	                case 1:
+	                    criarVaga();
+	                    break;
+	                case 2:
+	                    removerVaga();
+	                    break;
+	                case 3:
+	                    exibirVagasDisponiveis1();
+	                    break;
+	                case 4:
+	                    System.out.println("Voltando ao Menu Principal.");
+	                    break;
+	                default:
+	                    System.out.println("Opcao invalida! Tente novamente.");
+	            }
+	        } while (opcao != 4);
+	        lerValores.close();
+	    }
+
+	    private void removerVaga() {
+	        Scanner lerValores = new Scanner(System.in);
+
+	        System.out.print("Digite o numero da vaga a ser removida: ");
+	        int numeroVaga = lerValores.nextInt();
+
+	        vagas.removeIf(vaga -> vaga.getNumero() == numeroVaga);
+	        System.out.println("Vaga removida: Vaga " + numeroVaga);
+	        lerValores.close();
+	    }
+
+	    public void exibirVagasDisponiveis() {
+	        System.out.println("Vagas disponiveis:");
+	        for (VagaDeEstacionamento vaga : vagas) {
+	            if (!vaga.isOcupada()) {
+	                System.out.println("Vaga " + vaga.getNumero());
+	            }
+	        }
+	    }
+}
+
+
+
+  class GeradorDeMatricula {
+	private static final String[] LETRAS = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+											"N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
+	
+    private static final String[] NUMEROS = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"};
+    private static final Random random = new Random();
+
+    public static String gerarMatricula() {
+        StringBuilder matricula = new StringBuilder(" ");
+
+        for (int i = 0; i < 3; i++) {
+            matricula.append(LETRAS[random.nextInt(26)]);
+        }
+
+        matricula.append(" ");
+
+        for (int i = 0; i < 3; i++) {
+            matricula.append(NUMEROS[random.nextInt(10)]);
+        }
+
+        matricula.append(" MC ");
+
+        return matricula.toString();
+    }
+
+}
+
+
+
+   class RegistroDeEstacionamento {
+	 private Veiculo veiculo;
+	    private Date horaEntrada;
+	    private Date horaSaida;
+
+	    public RegistroDeEstacionamento(Veiculo veiculo, Date horaEntrada) {
+	        this.veiculo = veiculo;
+	        this.horaEntrada = horaEntrada;
+	        this.horaSaida = null;
+	    }
+
+	    public Veiculo getVeiculo() {
+	        return veiculo;
+	    }
+
+	    public Date getHoraEntrada() {
+	        return horaEntrada;
+	    }
+
+	    public Date getHoraSaida() {
+	        return horaSaida;
+	    }
+
+	    public void registrarSaida() {
+	        this.horaSaida = new Date();
+	    }
+
+}
+
+
+
+  class VagaDeEstacionamento {
+	private int numero;
+    private boolean ocupada;
+    private RegistroDeEstacionamento registro;
+
+    public VagaDeEstacionamento(int numero) {
+        this.numero = numero;
+        this.ocupada = false;
+        this.registro = null;
+    }
+
+    public int getNumero() {
+        return numero;
+    }
+
+    public boolean isOcupada() {
+        return ocupada;
+    }
+
+    public RegistroDeEstacionamento getRegistro() {
+        return registro;
+    }
+
+    public void estacionarVeiculo(Veiculo veiculo, Date horaEntrada) {
+        this.registro = new RegistroDeEstacionamento(veiculo, horaEntrada);
+        this.ocupada = true;
+    }
+
+    public void liberarVaga() {
+        this.registro.registrarSaida();
+        this.ocupada = false;
+    }
+}
+
+
+
+class Veiculo {
+	  private String placa;
+	  private String modelo;
+
+	    public Veiculo(String placa, String modelo) {
+	        this.placa = placa;
+	        this.modelo = modelo;
+	    }
+
+	    public String getPlaca() {
+	        return placa;
+	    }
+
+	    public String getModelo() {
+	        return modelo;
+	    }
+
+	    @Override
+	    public String toString() {
+	        return modelo + " - " + placa;
+	    }
+}
