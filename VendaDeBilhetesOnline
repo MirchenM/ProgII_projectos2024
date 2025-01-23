@@ -1,0 +1,644 @@
+package VendaDeBilhetesOnline;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Evento {
+
+	private String nome;
+    private String data;
+    private double precoPadrao;
+
+    public Evento(String nome, String data, double precoPadrao) {
+        this.nome = nome;
+        this.data = data;
+        this.precoPadrao = precoPadrao;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public double getPrecoPadrao() {
+        return precoPadrao;
+    }
+}
+
+
+
+class Cliente {
+	
+	private String nome;
+    private String email;
+
+    public Cliente(String nome, String email) {
+        this.nome = nome;
+        this.email = email;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+}
+
+
+
+class Lote {
+	
+	private int quantidadeDisponivel;
+    private double precoPista;
+    private double precoVIP;
+
+    public Lote(int quantidadeDisponivel, double precoPista, double precoVIP) {
+        this.quantidadeDisponivel = quantidadeDisponivel;
+        this.precoPista = precoPista;
+        this.precoVIP = precoVIP;
+    }
+
+    public int getQuantidadeDisponivel() {
+        return quantidadeDisponivel;
+    }
+
+    public double getPrecoPista() {
+        return precoPista;
+    }
+
+    public double getPrecoVIP() {
+        return precoVIP;
+    }
+
+    public void venderBilhetePista() {
+        quantidadeDisponivel--;
+    }
+
+    public void venderBilheteVIP() {
+        quantidadeDisponivel--;
+    }
+
+}
+
+
+
+class SistemaVendaBilhetes {
+	
+	private static Map<String, String> usuarios = new HashMap<>();
+    private static Map<String, Integer> carrinho = new HashMap<>();
+    private static Map<String, Double> precos = new HashMap<>();
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Inicializar alguns usuários para exemplo
+        usuarios.put("mirchennmaibaze@gmail.com", "abc1234");
+
+        inicializarPrecos();
+
+        exibirPaginaLoginOuCriarConta(scanner);
+
+        // Fechar o scanner
+        scanner.close();
+    }
+
+    //Inicializando os precos dos tickets disponiveis PISTA, VIP e VVIP
+    private static void inicializarPrecos() {
+        precos.put("PISTA - LOTE 1", 900.00);
+        precos.put("VIP - LOTE 1", 3000.00);
+        precos.put("PISTA - LOTE 2", 1100.00);
+        precos.put("VIP - LOTE 2", 4000.00);
+        precos.put("PISTA - LOTE 3", 1300.00);
+        precos.put("VIP - LOTE 3", 4500.00);
+        precos.put("VVIP - 4 Pessoas - LOTE 1 - 12000.00Mt Consumiveis", 25500.00);
+        precos.put("VVIP - 8 Pessoas - LOTE 1 - 24000.00Mt Consumiveis", 51000.00);
+        precos.put("VVIP - 4 Pessoas - LOTE 2 - 16000.00Mt Consumiveis", 33500.00);
+        precos.put("VVIP - 8 Pessoas - LOTE 2 - 32000.00Mt Consumiveis", 67000.00);
+        precos.put("VVIP - 4 Pessoas - LOTE 3 - 20000.00Mt Consumiveis", 41500.00);
+        precos.put("VVIP - 8 Pessoas - LOTE 3 - 40000.00Mt Consumiveis", 83000.00);
+   
+    }
+
+    private static void exibirPaginaLoginOuCriarConta(Scanner scanner) {
+        System.out.println("Bem-Vindo ao Site de Venda de Bilhetes Online");
+
+        System.out.println("Escolha uma opcao:");
+        System.out.println("1. LOGIN");
+        System.out.println("2. CRIAR NOVA CONTA");
+
+        int opcao = scanner.nextInt();
+
+        switch (opcao) {
+            case 1:
+                realizarLogin(scanner);
+                break;
+            case 2:
+                criarNovaConta(scanner);
+                break;
+            default:
+                System.out.println("Opcao invalida! Tente novamente.");
+        }
+    }
+
+    private static void realizarLogin(Scanner scanner) {
+        System.out.println("LOGIN");
+        System.out.print("Email: ");
+        String email = scanner.next();
+
+        while (!email.equals("mirchennmaibaze@gmail.com")) {
+            System.out.println("ERRO: O endereco de email inserido esta incorreto! Por favor, verifique o seu email e tente novamente.");
+            System.out.print("Email: ");
+            email = scanner.next();
+        }
+
+        while (!validarEmail(email)) {
+            System.out.println("ERRO: Por favor, insira um endereco de email valido! Por favor, verifique o seu email e tente novamente.");
+            System.out.print("Email: ");
+            email = scanner.next();
+        }
+
+        System.out.print("Password: ");
+        String senha = scanner.next();
+
+        while (!senha.equals("abc1234")) {
+            System.out.println("ERRO: Password incorreta! Por favor, tente novamente.");
+            System.out.print("Password: ");
+            senha = scanner.next();
+        }
+
+        System.out.println("Login bem-sucedido! Bem-vindo.");
+
+        exibirPaginaPrincipal(scanner);
+    }
+
+    private static void criarNovaConta(Scanner scanner) {
+        System.out.println("CRIAR NOVA CONTA");
+
+        String nomeCompleto;
+
+        do {
+            System.out.print("Nome Completo: ");
+            nomeCompleto = scanner.nextLine();
+
+            if (!validarNome(nomeCompleto)) {
+                System.out.println("ERRO: O nome inserido e invalido. Certifique-se de que a primeira letra de cada nome seja maiuscula. Tente novamente.");
+            }
+        } while (!validarNome(nomeCompleto));
+
+        String email;
+
+        do {
+            System.out.print("Email: ");
+            email = scanner.nextLine();
+
+            if (!email.contains("@")) {
+                System.out.println("EREO: Por favor, insira um endereço de email valido.");
+            }
+        } while (!email.contains("@"));
+
+        String numeroCelular;
+
+        do {
+            System.out.print("Numero de Celular: ");
+            numeroCelular = scanner.nextLine();
+
+            if (!numeroCelular.matches("^(82|83|84|85|86|87)\\d{7}$")) {
+                System.out.println("ERRO: Numero de telefone invalido.");
+            }
+        } while (!numeroCelular.matches("^(82|83|84|85|86|87)\\d{7}$"));
+
+        System.out.print("Escolha A Sua Senha: ");
+        String senha = scanner.nextLine();
+
+        String confirmarSenha;
+
+        do {
+            System.out.print("Confirme A Senha: ");
+            confirmarSenha = scanner.nextLine();
+
+            if (!confirmarSenha.equals(senha)) {
+                System.out.println("ERRO: As senhas nao coincidem. Por favor, tente novamente.");
+            }
+        } while (!confirmarSenha.equals(senha));
+
+        System.out.println("Opcoes:");
+        System.out.println("1. Gravar");
+        System.out.println("2. Voltar ao login");
+
+        int opcao = scanner.nextInt();
+
+        if (opcao == 1) {
+            System.out.println("Os dados foram gravados com sucesso!");
+            exibirPaginaPrincipal(scanner);
+        } else {
+            exibirPaginaLoginOuCriarConta(scanner);
+        }
+    }
+
+    private static boolean validarNome(String nome) {
+        return nome.matches("^[A-Z][a-z]+( [A-Z][a-z]+)*$");
+    }
+
+    private static boolean validarEmail(String email) {
+        return email.contains("@");
+    }
+
+    private static void exibirPaginaPrincipal(Scanner scanner) {
+    	System.out.println();
+        System.out.println("A SUA DIVERSAO COMECA AQUI!!!!");
+        System.out.println();
+        System.out.println("1. Sabor do Verao - Maputo");
+        System.out.println("2. Kings Of House - Maputo");
+        System.out.println("3. Festival do Picasso - Matola");
+        System.out.println("4. We Love Summer - Mahotas");
+        System.out.println("5. Matola Sundown In The Garden - Matola");
+        System.out.println();
+        System.out.println("6. Sair");
+        System.out.println();
+
+        System.out.println("Em caso de duvidas ou reclamacoes, entre em contacto pelos numeros: 846948154 ou 862734797");
+
+        int opcao = scanner.nextInt();
+
+        switch (opcao) {
+            case 1:
+                exibirDetalhesEvento("Sabor do Verao - Maputo", scanner);
+                break;
+            case 2:
+                // Implementar lógica para o evento 2
+                break;
+            case 3:
+                // Implementar lógica para o evento 3
+                break;
+            case 4:
+                // Implementar lógica para o evento 4
+                break;
+            case 5:
+                // Implementar lógica para o evento 5
+                break;
+            case 6:
+                System.out.println("Obrigado por usar o nosso sistema! Ate logo!");
+                break;
+            default:
+                System.out.println("Opcao invalida! Por favor, escolha uma opcao valida.");
+                exibirPaginaPrincipal(scanner);
+                break;
+        }
+    }
+
+    private static void exibirDetalhesEvento(String evento, Scanner scanner) {
+        System.out.println("Detalhes do Evento: " + evento);
+        System.out.println();
+        System.out.println("Escolha uma opcao:");
+        System.out.println("1. Tickets Disponiveis");
+        System.out.println("2. Adicionar Tickets ao Carrinho");
+        System.out.println("3. Remover Tickets do Carrinho");
+        System.out.println("4. Visualizar Carrinho");
+        System.out.println("5. Comprar Tickets");
+        System.out.println();
+        System.out.println("6. Voltar");
+
+        int opcao = scanner.nextInt();
+
+        switch (opcao) {
+            case 1:
+                exibirTicketsDisponiveis();
+                break;
+            case 2:
+            	adicionarTicketsAoCarrinho(scanner);
+                break;
+            case 3:
+                removerTicketsDoCarrinho(scanner);
+                break;
+            case 4:
+                visualizarCarrinho();
+                break;
+            case 5:
+               // comprarTickets(scanner, evento);
+                break;
+            case 6:
+                return;
+            default:
+                System.out.println("Opcao invalida! Por favor, escolha uma opcao valida..");
+                exibirDetalhesEvento(evento, scanner);
+        }
+    }
+
+    private static void exibirTicketsDisponiveis() {
+        // Informações sobre os tickets
+        System.out.println("PISTA & VIP");
+        System.out.println("------------------------------------------------------------------------------------------------");
+        exibirLote("PISTA", 1, 50, 900.00);
+        exibirLote("VIP", 1, 50, 3000.00);
+        exibirLote("PISTA", 2, 75, 1100.00);
+        exibirLote("VIP", 2, 75, 4000.00);
+        exibirLote("PISTA", 3, 100, 1300.00);
+        exibirLote("VIP", 3, 100, 4500.00);
+        System.out.println("------------------------------------------------------------------------------------------------");
+
+        // Informacoes sobre os tickets VVIP
+        System.out.println("VVIP");
+        System.out.println("------------------------------------------------------------------------------------------------");
+        exibirVVIP(4, 25500.00, 12000.00, 1);
+        exibirVVIP(8, 51000.00, 24000.00, 1);
+        exibirVVIP(4, 33500.00, 16000.00, 2);
+        exibirVVIP(8, 67000.00, 32000.00, 2);
+        exibirVVIP(4, 41500.00, 20000.00, 3);
+        exibirVVIP(8, 83000.00, 40000.00, 3);
+        System.out.println("------------------------------------------------------------------------------------------------");
+
+        // Informações sobre o evento
+        System.out.println("SABOR DO VERAO 2024");
+        System.out.println("------------------------------------------------------------------------------------------------");
+        System.out.println("Descricao Do Evento");
+        System.out.println("Sabor do Versao edicao 2024. Mais detalhes nas paginas oficiais Instagram & Facebook.");
+        System.out.println("Link: www.instagram.com/sabordoveraofestival");
+        System.out.println("\nData E Hora");
+        System.out.println("Sabado, 15 de dezembro de 2024 16:00");
+        System.out.println("\nLocal");
+        System.out.println("Campo do Maxaquene");
+        System.out.println("------------------------------------------------------------------------------------------------");
+
+        // Informações sobre o promotor
+        System.out.println("SOBRE O PROMOTOR");
+        System.out.println("--------------------------------------------------------------------------------------------------");
+        System.out.println("Promotor do evento");
+        System.out.println("BABA PROD");
+        System.out.println("mmdmaibaze@gmail.com");
+        System.out.println("862734797");
+        System.out.println("--------------------------------------------------------------------------------------------------");
+        System.out.println("Sabor do Verao 2023 - Campo do Maxaquene");
+    }
+    
+    private static void exibirLote(String tipo, int numero, int quantidade, double preco) {
+        System.out.println(tipo + " - LOTE " + numero + " (Temos disponiveis " + quantidade + " tickets " + tipo.toLowerCase() + " para o LOTE " + numero + ")");
+        System.out.println(preco + "Mt");
+    }
+
+    private static void exibirVVIP(int pessoas, double precoTotal, double consumiveis, int numeroLote) {
+        System.out.println(pessoas + " Pessoas " + precoTotal + "Mt - " + consumiveis + "Mt Consumiveis - Lote " + numeroLote);
+    }
+
+    private static void adicionarTicketsAoCarrinho(Scanner scanner) {
+        System.out.println("Escolha o tipo de ticket:");
+        // Exibir os tipos de tickets disponiveis
+        precos.keySet().forEach(tipoTicket ->
+                System.out.println(tipoTicket));
+
+        String tipoEscolhido = scanner.nextLine();
+
+        // Validar se o tipo escolhido e valido
+        if (!precos.containsKey(tipoEscolhido)) {
+            System.out.println("Tipo de ticket invalido. Tente novamente.");
+            return;
+        }
+
+        System.out.println("Quantidade desejada:");
+        int quantidade = scanner.nextInt();
+        scanner.nextLine(); // Consumir a quebra de linha
+
+        // Adicionar ao carrinho
+        carrinho.put(tipoEscolhido, carrinho.getOrDefault(tipoEscolhido, 0) + quantidade);
+
+        System.out.println("Tickets adicionados ao carrinho com sucesso!");
+    }
+    
+    
+    private static void removerTicketsDoCarrinho(Scanner scanner) {
+        System.out.println("Carrinho atual:");
+        visualizarCarrinho();
+
+        System.out.println("Escolha o tipo de ticket a ser removido:");
+        String tipoEscolhido = scanner.nextLine();
+
+        // Validar se o tipo escolhido está no carrinho
+        if (!carrinho.containsKey(tipoEscolhido)) {
+            System.out.println("Tipo de ticket nao encontrado no carrinho. Tente novamente.");
+            return;
+        }
+
+        System.out.println("Quantidade a ser removida:");
+        int quantidade = scanner.nextInt();
+        scanner.nextLine(); // Consumir a quebra de linha
+
+        int quantidadeAtual = carrinho.get(tipoEscolhido);
+
+        // Validar se a quantidade a ser removida e valida
+        if (quantidade <= 0 || quantidade > quantidadeAtual) {
+            System.out.println("Quantidade invalida. Tente novamente.");
+            return;
+        }
+
+        // Remover do carrinho
+        carrinho.put(tipoEscolhido, quantidadeAtual - quantidade);
+
+        System.out.println("Tickets removidos do carrinho com sucesso!");
+    }
+    
+    
+    private static void visualizarCarrinho() {
+        if (carrinho.isEmpty()) {
+            System.out.println("O carrinho está vazio.");
+        } else {
+            System.out.println("Tickets no Carrinho:");
+            for (Map.Entry<String, Integer> entry : carrinho.entrySet()) {
+                String tipoTicket = entry.getKey();
+                int quantidade = entry.getValue();
+                System.out.println(tipoTicket + ": " + quantidade + " tickets");
+            }
+        }
+    }
+    
+    private static void comprarTickets(Scanner scanner, String evento) {
+        visualizarCarrinho();
+        System.out.println("Preco total: " + calcularPrecoTotal());
+
+        System.out.println("Escolha uma opcao:");
+        System.out.println("1. Finalizar Compra");
+        System.out.println("2. Cancelar Compra");
+
+        int opcao = scanner.nextInt();
+        scanner.nextLine(); // Consumir a quebra de linha
+
+        switch (opcao) {
+            case 1:
+                exibirMetodosPagamento(scanner);
+                break;
+            case 2:
+                cancelarCompra();
+                break;
+            default:
+                System.out.println("Opcao invalida. Tente novamente.");
+        }
+    }
+
+    
+    private static void finalizarCompra() {
+        System.out.println("Finalizar Compra");
+
+        // Implementar lógica para finalizar a compra
+    }
+
+    private static void cancelarCompra() {
+        carrinho.clear(); // Limpar o carrinho ao cancelar a compra
+        System.out.println("Compra cancelada.");
+    }
+
+    
+    private static double calcularPrecoTotal() {
+        double precoTotal = 0;
+
+        for (Map.Entry<String, Integer> entry : carrinho.entrySet()) {
+            String tipoTicket = entry.getKey();
+            int quantidade = entry.getValue();
+            double precoUnitario = precos.get(tipoTicket);
+
+            precoTotal += quantidade * precoUnitario;
+        }
+
+        return precoTotal;
+    }
+
+
+    private static void exibirMetodosPagamento(Scanner scanner) {
+        while (true) {
+            System.out.println("Escolha um método de pagamento:");
+            System.out.println("1. Mpesa");
+            System.out.println("2. E-mola");
+            System.out.println("3. Cartao de credito");
+            System.out.println("4. Cancelar Compra");
+
+            int opcao = scanner.nextInt();
+            scanner.nextLine(); // Consumir a quebra de linha
+
+            switch (opcao) {
+                case 1:
+                    System.out.println("Pagamento por Mpesa realizado com sucesso!");
+                    finalizarCompra();
+                    break;
+                case 2:
+                    finalizarCompra();
+                    break;
+                case 3:
+                    System.out.println("Pagamento por Cartao de credito realizado com sucesso!");
+                    finalizarCompra();
+                    break;
+                case 4:
+                    carrinho.clear();
+                    System.out.println("Compra cancelada.");
+                    return;
+                default:
+                    System.out.println("Opcao invalida. Tente novamente.");
+            }
+        }
+    }
+}
+
+
+
+class Venda {
+	
+	  private Evento evento;
+    private List<Ticket> ticketsVendidos;
+    private Cliente cliente;
+
+    public Venda(Evento evento, Cliente cliente) {
+        this.evento = evento;
+        this.cliente = cliente;
+        this.ticketsVendidos = new ArrayList<>();
+    }
+
+    public void adicionarTicket(Ticket ticket) {
+        ticketsVendidos.add(ticket);
+    }
+
+    public double calcularTotal() {
+        double total = 0;
+        for (Ticket ticket : ticketsVendidos) {
+            total += ticket.getPreco();
+        }
+        return total;
+    }
+
+    public void imprimirRecibo() {
+        System.out.println("Recibo de Compra");
+        System.out.println("Cliente: " + cliente.getNome());
+        System.out.println("Evento: " + evento.getNome());
+        System.out.println("Data do Evento: " + evento.getData());
+        System.out.println("Bilhetes Comprados:");
+
+        for (Ticket ticket : ticketsVendidos) {
+            System.out.println(" - Tipo: " + ticket.getTipo() + ", Preço: " + ticket.getPreco());
+        }
+
+        System.out.println("Total a Pagar: " + calcularTotal());
+    }
+
+}
+
+
+
+class Ticket {
+	
+	private String tipo;
+  private double preco;
+
+    public Ticket(String tipo, double preco) {
+        this.tipo = tipo;
+        this.preco = preco;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public double getPreco() {
+        return preco;
+    }
+
+}
+
+
+
+class VVIP {
+	
+	    private int quantidadePessoas;
+	    private double precoTotal;
+	    private double consumoMinimo;
+	    private Lote lote;
+
+	    public VVIP(int quantidadePessoas, double precoTotal, double consumoMinimo, Lote lote) {
+	        this.quantidadePessoas = quantidadePessoas;
+	        this.precoTotal = precoTotal;
+	        this.consumoMinimo = consumoMinimo;
+	        this.lote = lote;
+	    }
+
+	    public int getQuantidadePessoas() {
+	        return quantidadePessoas;
+	    }
+
+	    public double getPrecoTotal() {
+	        return precoTotal;
+	    }
+
+	    public double getConsumoMinimo() {
+	        return consumoMinimo;
+	    }
+
+	    public Lote getLote() {
+	        return lote;
+	    }
+
+}
+
+
