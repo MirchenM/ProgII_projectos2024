@@ -1,1 +1,185 @@
+package GestaoAcademica;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+public class Curso {
+	
+	public String nome;
+	private List<Semestre> semestres;
+	
+	public Curso(String nome) {
+		this.nome = nome;
+		this.semestres = new ArrayList<>();
+	}
+
+	public String getNome() {
+		return nome;
+	}
+	
+	public List<Semestre> getSemestres() {
+		return semestres;
+	}
+	
+	public void adicioanrSemestre(Semestre semestre) {
+		semestres.add(semestre);
+	}
+}
+
+
+public class Cadeira {
+
+	private String nome;
+	private String codigo;
+	
+	public Cadeira(String nome, String codigo) {
+		this.nome = nome;
+		this.codigo = codigo;
+	}
+	
+	public String getNome() {
+		return nome;
+	}
+	
+	public String getCodigo() {
+		return codigo;
+	}
+}
+
+
+
+public class Semestre {
+
+	private String nome;
+	private List<Cadeira> cadeiras;
+	
+	public Semestre(String nome) {
+		this.nome = nome;
+		this.cadeiras = new ArrayList<>();
+	}
+	
+	public String getNome() {
+		return nome;
+	}
+	
+	public List<Cadeira> getCadeiras() {
+		return cadeiras;
+	}
+	
+	public void adicionarCadeira(Cadeira cadeira) {
+		cadeiras.add(cadeira);
+	}
+	
+}
+
+
+
+public class SistemaGestaoAcademica {
+	
+	public static void main(String [] args) {
+		Scanner lerValores = new Scanner(System.in);
+		
+		//Criando cursos
+		Curso leit = new Curso("Licenciatura em Engenharia Informatica e de Telecomunicacoes     LEIT");
+		Curso lecc = new Curso("Licenciatura em Engenharia e Ciencias da Computacao              LECC");
+		Curso lea = new Curso("Licenciatura em Engenharia Ambiental                              LEA");
+		
+		
+		//Criando os semestres
+		Semestre semestre1 = new Semestre("1 Semestre"); //1 Semestre corresponde ao 1 Ano
+		Semestre semestre2 = new Semestre("2 Semestre"); //2 Semestre corresponde ao 1 Ano 
+		
+		
+		//Adicionando cadeiras ao 1 Semestre do curso de Engenharia Informatica e de Telecomunicacoes
+		semestre1.adicionarCadeira(new Cadeira("Matematica Geral", "MATG"));
+		semestre1.adicionarCadeira(new Cadeira("Fundamentos de Programacao", "FNPROG"));
+		semestre1.adicionarCadeira(new Cadeira("Introducao a Informatica", "IINF"));
+		semestre1.adicionarCadeira(new Cadeira("Arquitetura e Tecnologia de Computadores", "ATC"));
+		semestre1.adicionarCadeira(new Cadeira("Ingles Tecnico", "ITEC"));
+		semestre1.adicionarCadeira(new Cadeira("Fisica I", "FISI"));
+		
+		//Adicionando cadeiras ao 2 Semestre do curso de Engenharia Informatica e de Telecomunicacoes
+		semestre2.adicionarCadeira(new Cadeira("Analise Matematica I", "ANMAT1"));
+		semestre2.adicionarCadeira(new Cadeira("Desenho Esquematico", "DESESQ"));
+		semestre2.adicionarCadeira(new Cadeira("Programacao I", "PROGI"));
+		semestre2.adicionarCadeira(new Cadeira("Fisica II", "FISII"));
+		semestre2.adicionarCadeira(new Cadeira("Tecnicas de Comunicacao", "TECOM"));
+		semestre2.adicionarCadeira(new Cadeira("Probabilidades e Estatistica", "PROBES"));
+		
+		
+		exibirMenuCursos(lerValores, leit);
+		
+		lerValores.close();
+		
+	}
+	
+	private static void exibirMenuCursos(Scanner lerValores, Curso curso) {
+		System.out.println("Pagina de Cursos - " + curso.getNome());
+		int opcao = 0;
+		
+		while(opcao!= -1) {
+			System.out.println("Escolha uma opcao:");
+			System.out.println("1. Visualizar Semestres");
+			System.out.println("2. Voltar");
+			opcao = lerValores.nextInt();
+			switch(opcao) {
+			case 1:
+				exibirMenuSemestres(lerValores, curso);
+				break;
+			case 2:
+				opcao = -1; //Opcao para Voltar
+				break;
+				default:
+				System.out.println("Escolha invalida. Tente novamente.");
+			}
+		}
+	}
+	
+	private static void exibirMenuSemestres(Scanner lerValores, Curso curso) {
+		System.out.println("Semestres - " +curso.getNome());
+		List<Semestre> semestres = curso.getSemestres();
+		for(int i = 0; i < semestres.size(); i++) {
+			System.out.println((i + 1) + " . " +semestres.get(i).getNome());
+		}
+		
+		System.out.println(semestres.size() + 1 + ". Voltar");
+		
+		int opcao = lerValores.nextInt();
+		
+		if(opcao>= 1 && opcao <= semestres.size()) {
+			Semestre semestreSeleccionado = semestres.get(opcao -1);
+			
+			exibirMenuCadeiras(lerValores, curso, semestreSeleccionado);
+		} else if(opcao == semestres.size() + 1) { //Voltar
+		} else {
+			System.out.print("Escolha invalida. Tente novamente.");
+		}
+	}
+	
+	private static void exibirMenuCadeiras(Scanner lerValores, Curso curso, Semestre semestre) {
+		System.out.println("Pagina de Cadeiras - " +curso.getNome() + " - " +semestre.getNome());
+		List<Cadeira> cadeiras = semestre.getCadeiras();
+		for(int i = 0; i < cadeiras.size(); i++) {
+			System.out.println((i + 1) + ". " +cadeiras.get(i).getNome());
+		}
+		System.out.println(cadeiras.size() + 1 + ". Voltar");
+		
+		int opcao = lerValores.nextInt();
+		
+		if(opcao >= 1 && opcao <= cadeiras.size()) {
+			Cadeira cadeiraSeleccionada = cadeiras.get(opcao -1);
+			
+			//Implementacao da Logica para visualizar os estudantes inscritos na cadeira
+			
+			System.out.println("Visualizar estudantes inscritos na cadeira de" + cadeiraSeleccionada.getNome());
+		} else if (opcao == cadeiras.size() + 1) {
+			exibirMenuSemestres(lerValores, curso);
+		} else {
+			System.out.println("Escolha invalida! Tete novamente.");
+		}
+	
+	}
+}
+
 
