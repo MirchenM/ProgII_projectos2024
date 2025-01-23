@@ -1,0 +1,401 @@
+package MercadoVirtualAgricultores;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+public class MercadoVirtual {
+	
+	//Atributos
+	private static Map<Integer, Produto> catalogo = new HashMap<>();
+  private static CarrinhoDeCompras carrinho = new CarrinhoDeCompras();
+
+    //Metodo Principal
+    public static void main(String[] args) {
+    	
+    	//Classe Scanner
+        Scanner lerDados = new Scanner(System.in);
+        
+        //Inicializando o Catalogo
+        inicializarCatalogo();
+        int opcao;
+        do {
+        	//Exibindo o Menu
+            exibirMenu();
+            opcao = lerDados.nextInt();
+            switch (opcao) {
+                case 1:
+                    exibirTodosOsProdutos();
+                    realizarCompra(lerDados);
+                    break;
+                case 2:
+                    exibirCarrinho();
+                    break;
+                case 3:
+                    System.out.println("Total a pagar: " + carrinho.calcularTotal() + "Mt");
+                    pagar(lerDados);
+                    break;
+                case 4:
+                    exibirCatalogo();
+                    break;
+                case 5:
+                    pagar(lerDados);
+                    break;
+                case 6:
+                	//Autenticando como Administrador
+                    if (autenticarComoAdmin(lerDados )) {
+                        MercadoVirtualAdmin.definirPreco(catalogo.get(1), 3.00);
+                    } else {
+                        System.out.println("Acesso negado! A senha introduzida esta incorrecta, verifique a sua senha e tente novamente!"); //No caso da senha introduzida estiver incorrecta
+                    }
+                    break;
+                case 7:
+                	if (autenticarComoAdmin(lerDados)) {
+                        Produto novoProduto = MercadoVirtualAdmin.adicionarNovoProduto();
+                        catalogo.put(catalogo.size() + 1, novoProduto);
+                        System.out.println("O novo produto foi adicionado com sucesso!"); //Quando o produto tiver sido adicionado com sucesso
+                    } else {
+                        System.out.println("Acesso negado! A senha introduzida esta incorreta, verifique a sua senha e tente novamente!"); //No caso da senha introduzida estiver incorrecta
+                    }
+                    break;
+                case 0:
+                    break;
+                default:
+                    System.out.println("Opcao invalida! Tente novamente."); //No caso de uma escolha que nao esteja dentro do Menu
+            }
+        } while (opcao != 0);
+
+        System.out.println("Obrigado por usar o nosso Mercado Virtual de Maputo! Volte sempre." +
+        		"Os seus produtos serao entregues em meia hora. Por favor, apresente o comprovativo de pagamento no acto da entrega. Agradecemos pela confianca e esperamos ve-lo em breve!"); //Quando o Cliente sai do Sistema
+        lerDados.close(); //Encerrando a recepcao de dados via Scanner/teclado
+    }
+
+    //Metodo para Realizar Compra
+    private static void realizarCompra(Scanner lerDados) {
+        System.out.print("Insira o codigo do produto que deseja adicionar ao carrinho!! (Pressione '0' para sair): "); //Pedindo ao Cliente para inserir o codigo do produto que pretende adicionar ao carrinho e informado para que ele pressione '0' para sair
+        int codigoProduto = lerDados.nextInt();
+
+        while (codigoProduto != 0) {
+            if (catalogo.containsKey(codigoProduto)) {
+                Produto produtoEscolhido = catalogo.get(codigoProduto);
+                System.out.print("Quantidade desejada: "); //Pedindo ao Cliente para informar a quantidade do produto que ele deseja adicionar ao carrinho 
+                int quantidade = lerDados.nextInt();
+                carrinho.adicionarItem(produtoEscolhido, quantidade);
+                System.out.println(quantidade + " unidades de " + produtoEscolhido.getNome() + " adicionadas ao carrinho."); //Informando a quantidade adicionada do produto escolhido
+
+            } else {
+                System.out.println("O produto nao foi encontrado, por favor verifique o seu pedido!"); //No caso do Cliente inserir um codigo do produto que nao esteja no CATALOGO
+            }
+
+            System.out.print("Insira o codigo do proximo produto que deseja adicionar ao carringo!! (Pressione '0' para sair): "); //Pedindo ao Cliente para inserir o codigo do proximo produto que ele deseja adicionar ao carrinho e informando que se o mesmo quiser sair so precisa pressionar '0'
+            codigoProduto = lerDados.nextInt();
+        }
+    }
+
+    //Metodos para exibir o Menu de Pagamentos
+    private static void pagar(Scanner lerDados) {
+        double totalPagar = carrinho.calcularTotal();
+
+        if (totalPagar > 0) {
+            System.out.println("Total a pagar: " + totalPagar + "Mt"); //Informando o total a pagar pelos produtos dentro do carrinho
+
+            if (totalPagar >= 200.00) {
+                System.out.println("POR FAVOR, ESCOLHA O METODO DE PAGAMENTO");
+                System.out.println("1. Pagamento por Mpesa");
+                System.out.println("2. Pagamento por E-mola");
+                System.out.println("3. Pagamento por Cartao de Credito"); //O pagamento por Cartao de Credito so pode ser efectuado quando o valor a pagar for igual ou superior a 200.00Mt
+                System.out.println("4. Cancelar a compra"); //Cancela a compra
+
+                int metodoPagamento = lerDados.nextInt();
+                switch (metodoPagamento) {
+                	//Pagamento via Mpesa
+                    case 1:
+                        double taxaMpesa = calcularTaxaMpesa(totalPagar); //Calcula o valor da taxa que sera necessario para a transferencia via Mpesa
+                        System.out.println("Confirmado AKH5BPZO99H. Transferiste " + totalPagar + "Mt, " +
+                                "a taxa foi de " + taxaMpesa +
+                                "para o Mercado Virtual de Agricultores de Maputo aos " +
+                                obterDataAtual() + " as " + obterHoraAtual() +
+                                ". Em caso de duvida, ligue para a Linha do Cliente. Na App Meu M-Pesa e mais facil. Baixa a App no Google Play e na AppStore.");
+                        finalizarCompra();
+                        break;
+                        
+                    //Pagamento via Emola    
+                    case 2:                    	
+                        double taxaEmola = calcularTaxaEmola(totalPagar); //Calcula o valor da taxa que sera necessario para a transferencia via Emola
+                        System.out.println("ID da transacao PP231205.2045.I87714. Transferiste " + totalPagar + " Mt, " +
+                                " para o Mercado Virtual de Agricultores de Maputo. A taxa foi de " + taxaEmola + " Mt, aos " 
+                                 + obterDataAtual() + " as " + obterHoraAtual() +
+                                ". Acesse o aplicativo e-Mola para facilitar e flexibilizar. " +
+                                "Baixa no Google Play e na AppStore para acessar nossos servicos.");
+                        finalizarCompra();
+                        break;
+                        
+                    //Pagamento via Cartao de Credito    
+                    case 3:
+                        System.out.println("Informamos que transferiu " + totalPagar + "para o Mercado Virtual de Agricultores de Maputo."); //Mensagem de confirmacao da compra via Cartao de Credito
+                        finalizarCompra();
+                        break;
+                        
+                    //No caso do Cliente cancelar a compra   
+                    case 4:
+                        System.out.println("A compra foi cancelada.");
+                        break;
+                        
+                    default:
+                        System.out.println("Opcao invalida! Por favor, tente novamente."); //No caso do Cliente escolher uma opcao que nao esteja no Menu de Pagamentos
+                        break;
+                }
+            } else {
+                System.out.println("So pode efectuar o pagamento usando o cartao de credito se o valor a pagar pelos produtos for igual ou superior a 200.00Mt. Por favor, tente as opcoes Mpesa/e-Mola");
+            }
+        } else {
+            System.out.println("O carrinho de compras esta vazio!"); //Caso o Cliente deseja efectuar uma compra sem que tenha adicionado nada ao carrinho
+        }
+    }
+
+    //Metodo para calcular a Taxa de Transferencia do Valor via Mpesa
+    private static double calcularTaxaMpesa(double valor) {
+        if (valor >= 100.00 && valor <= 500.00) { //Caso o valor a pagar pelos produtos esteja no intervalo de 100.00Mt - 500.00Mt, a taxa de transferencia sera de 20.00Mt
+            return 20.00;
+        } else if (valor > 500.00 && valor <= 2000.00) { //Caso o valor a pagar pelos produtos esteja no intervalo de 500.00Mt - 2000.00Mt, a taxa de transferencia sera de 50.00Mt
+            return 50.00;
+        } else {
+            return 100.00; //Para valores acima dos intervalos anteriores, a taxa sera de 100.00Mt
+        }
+    }
+    
+    //Metodo para calcular a Taxa da Rransferencia do Valor via Emola
+    private static double calcularTaxaEmola(double valor) {
+        if (valor >= 100.00 && valor <= 500.00) { //Caso o valor a pagar pelos produtos esteja no intervalo de 100.00Mt - 500.00Mt, a taxa de transferencia sera de 15.00Mt
+            return 15.00;
+        } else if (valor > 500.00 && valor <= 2000.00) { //Caso o valor a pagar pelos produtos esteja no intervalo de 100.00Mt - 500.00Mt, a taxa de transferencia sera de 40.00Mt
+            return 40.00;
+        } else {
+            return 80.00; //Para valores acima dos intervalos anteriores, a taxa sera de 80.00Mt
+        }
+    }
+
+    //Metodo para obter a Data Actual
+    private static String obterDataAtual() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        return dateFormat.format(new Date());
+    }
+
+    //Metodo para obter a Hora Actual
+    private static String obterHoraAtual() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        return dateFormat.format(new Date());
+    }
+
+    //Metodo para finalizar compra 
+    private static void finalizarCompra() {
+        carrinho.getItens().clear();
+        System.out.println("A compra foi finalizada com sucesso! Obrigado.");
+    }
+
+    //Metodo para iniciar o Catalogo e definir os precos junto com o IVA
+    private static void inicializarCatalogo() {
+    	Produto alface = new Produto("Alface", 100.00, 0.17); //5Kg
+    	Produto alho = new Produto("Alho", 1000.00, 0.17); //5Kg
+    	Produto amendoim = new Produto("Amendoim", 5500.00, 0.17); //50Kg
+    	Produto arroz1 = new Produto("Arroz Wambau", 650.00, 0.17); //10Kg
+    	Produto arroz2 = new Produto("Arroz Wambau", 1300.00, 0.17); //25Kg
+    	Produto batata1 = new Produto("Batata Doce", 700.00, 0.17); //50Kg
+    	Produto batata2 = new Produto("Batata Reno", 340.00, 0.17); //5Kg
+    	Produto beteraba = new Produto("Beteraba", 500.00, 0.17); //5Kg
+    	Produto cebola = new Produto("Cebola", 250.00, 0.17); //5Kg
+    	Produto cenoura = new Produto("Cenoura", 700.00, 0.17); //5Kg
+    	Produto gergelim = new Produto("Gergelim", 4500.00, 0.17); //50Kg 
+    	Produto feijao1 = new Produto("Feijao Manteiga", 3300.00, 0.17); //50Kg
+    	Produto feijao2 = new Produto("Feijao Nhemba", 3300.00, 0.17); //50Kg
+    	Produto feijao3 = new Produto("Feijao Preto", 3300.00, 0.17); //50Kg
+    	Produto milho = new Produto("Milho", 500.00, 0.17); //50kg
+    	Produto repolho = new Produto("Repolho", 25.00, 0.17); //Por unidade
+    	Produto tomate1 = new Produto("Tomate Verde", 1000.00, 0.17); //Caixa
+    	Produto tomate2 = new Produto("Tomate Maduro", 1000.00, 0.17); //Caixa
+    	
+    	
+    	/*NB: Os '0.17 (17%)' correspondem a taxa de IVA vigente em Mocambique */
+    	
+        //Adicionando Produtos ao Catalogo
+        catalogo.put(1, alface);
+        catalogo.put(2, alho);
+        catalogo.put(3,  amendoim);
+        catalogo.put(4, arroz1);
+        catalogo.put(5, arroz2);
+        catalogo.put(6, batata1);
+        catalogo.put(7, batata2);
+        catalogo.put(8, beteraba);
+        catalogo.put(9, cebola);
+        catalogo.put(10, cenoura);
+        catalogo.put(11, gergelim);
+        catalogo.put(12, feijao1);
+        catalogo.put(13, feijao2);
+        catalogo.put(14, feijao3);
+        catalogo.put(15, milho);
+        catalogo.put(16, repolho);
+        catalogo.put(17, tomate1);
+        catalogo.put(18, tomate2);
+        
+    }
+
+    //Menu de Opcoes
+    private static void exibirMenu() {
+    	System.out.println();
+    	System.out.println("==================== SEJA BEM-VINDO/A AO MERCADO VIRTUAL DE MAPUTO ====================");
+    	System.out.println();
+    	System.out.print("POR FAVOR, ESCOLHA UMA DAS OPCOES ABAIXO!");
+    	System.out.println();
+        System.out.println("1. Produtos Disponiveis");
+        System.out.println("2. Ver Carrinho de Compras");
+        System.out.println("3. Ver Total a Pagar");
+        System.out.println("4. Ver Catalogo de Produtos");
+        System.out.println("5. Efectuar Pagamento");
+        System.out.println("6. Definir Preco de um Produto (Admin)"); //Esta opcao e de acesso restrito para cliente
+        System.out.println("7. Adicionar Novo Produto Ao Catalogo (Admin)"); //Esta opcao e de acesso restrito para o cliente
+        System.out.println("0. Sair");
+        //System.out.println();
+        System.out.println("====================================================================================");
+        System.out.println("Para duvidas ou reclamacoes, entre em contacto pelos numeros: 846948154 ou 862734797");
+        System.out.println("====================================================================================");
+        //System.out.println("APOIO: 846948154");
+        System.out.println();
+        System.out.print("Opcao escolhida:");
+        //System.out.println();
+        
+        
+    }
+    
+    //Metodo para exibir todos os Produtos Disponiveis
+    private static void exibirTodosOsProdutos() {
+        for (Map.Entry<Integer, Produto> entry : catalogo.entrySet()) {
+            Produto produto = entry.getValue();
+            System.out.println(entry.getKey() + ". " + produto.getNome() + " - " + produto.calcularPrecoComIva() + " Mt ");
+        }
+    }
+
+    //Metodo para exibir o Carrinho de Compras
+    private static void exibirCarrinho() {
+        System.out.println("CARRINHO DE COMPRAS:");
+        for (Map.Entry<Produto, Integer> entry : carrinho.getItens().entrySet()) {
+            Produto produto = entry.getKey();
+            int quantidade = entry.getValue();
+            System.out.println(quantidade + " unidades de " + produto.getNome() +
+                    " - Mt " + produto.calcularPrecoComIva() * quantidade);
+        }
+    }
+
+    //Metodo para exibir Catalogo
+    private static void exibirCatalogo() {
+        System.out.println("CATALOGO DE PRODUTOS:");
+        exibirTodosOsProdutos();
+    }
+
+    //Metodo para autenticar os dados do Administrador
+    private static boolean autenticarComoAdmin(Scanner lerDados) {
+        System.out.print("Insira a senha de administrador: ");
+        String senhaDigitada = lerDados.next();
+        return MercadoVirtualAdmin.autenticarComoAdmin(senhaDigitada);
+    }
+    
+}
+
+
+
+class CarrinhoDeCompras {
+	//Atributos
+	private Map<Produto, Integer> itens;
+
+    public CarrinhoDeCompras() {
+        this.itens = new HashMap<>();
+    }
+
+    //Metodo para adicionar produto
+    public void adicionarItem(Produto produto, int quantidade) {
+        itens.put(produto, quantidade);
+    }
+
+    //Metodo para Calcular Total
+    public double calcularTotal() {
+        double total = 0;
+        for (Map.Entry<Produto, Integer> entry : itens.entrySet()) {
+            Produto produto = entry.getKey();
+            int quantidade = entry.getValue();
+            total += produto.calcularPrecoComIva() * quantidade;
+        }
+        return total;
+    }
+
+    public Map<Produto, Integer> getItens() {
+        return itens;
+    }
+	
+}
+
+
+
+class MercadoVirtualAdmin {
+	//Atributos
+	private static final String SENHA_ADMIN = "admin123";
+
+	//Metodo para definir preco do novo produto
+    public static void definirPreco(Produto produto, double novoPreco) {
+        produto.setPreco(novoPreco);
+        System.out.println("Preco de " + produto.getNome() + " definido como Mt " + produto.calcularPrecoComIva());
+    }
+
+    //Metodo para Adicionar Novo Produto
+    public static Produto adicionarNovoProduto() {
+        Scanner lerDados = new Scanner(System.in);
+
+        System.out.print("Nome do novo produto: "); //Definindo o nome do novo produto
+        String nome = lerDados.nextLine();
+
+        System.out.print("Preco do novo produto: "); //Definindo o preco do novo produto 
+        double preco = lerDados.nextDouble();
+
+        System.out.print("Taxa de IVA do novo produto: "); //Definindo a taxa do IVA do novo produto
+        double iva = lerDados.nextDouble();
+
+        return new Produto(nome, preco, iva); //Retorno do nome, preco e taxa de IVA do produto adicionado
+    }
+
+    //Metodo para Autenticar como Administrador
+    public static boolean autenticarComoAdmin(String senhaDigitada) {
+        return SENHA_ADMIN.equals(senhaDigitada);
+    }
+
+}
+
+
+
+class Produto {
+	private String nome;
+    private double preco;
+    private double iva; //Taxa de IVA vigente em Mocambique
+
+    public Produto(String nome, double preco, double iva) {
+        this.nome = nome;
+        this.preco = preco;
+        this.iva = iva;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public double getPreco() {
+        return preco;
+    }
+
+    public double calcularPrecoComIva() {
+        return preco + (preco * iva);
+    }
+
+    public void setPreco(double novoPreco) {
+        this.preco = novoPreco;
+    }
+
+}
