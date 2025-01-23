@@ -37,6 +37,7 @@ import java.util.Map;
 }
 
 
+
   class Farmacia {
 	private List<Cliente> clientes;
 	private List<Produto> produtos;
@@ -92,7 +93,6 @@ import java.util.Map;
     }
 
     
-    
     public void menuInventarios() {
         Scanner lerDados = new Scanner(System.in);
         while (true) {
@@ -118,8 +118,7 @@ import java.util.Map;
             }
         }
     }
-    
-    
+        
     
     public void menuVendas(Scanner lerDados) {
         while (true) {
@@ -141,8 +140,7 @@ import java.util.Map;
             }
         }
     }
-    
-    
+     
     
     private void realizarVenda(Scanner lerDados) {
         Venda venda = new Venda();
@@ -181,8 +179,7 @@ import java.util.Map;
         System.out.println("Venda realizada com sucesso!");
     }
 
-    
-    
+        
     private Cliente buscarClientePorNome(String nome) {
         for (Cliente cliente : clientes) {
             if (cliente.getNome().equalsIgnoreCase(nome)) {
@@ -191,8 +188,7 @@ import java.util.Map;
         }
         return null;
     }
-
-    
+  
     
     private Produto buscarProdutoPorNome(String nome) {
         for (Produto produto : produtos) {
@@ -212,7 +208,6 @@ import java.util.Map;
             System.out.println(produto.getNome() + ": " + produto.getEstoque() + " unidades");
         }
     }
-
 
 	
 	public void gerarRelatorioEstoqueBaixo() {
@@ -237,11 +232,10 @@ import java.util.Map;
 			}
 		}
 		
-		//Ordenando os produtos com base na quantidade total vendida em ordem decrescente
+	//Ordenando os produtos com base na quantidade total vendida em ordem decrescente
         List<Map.Entry<Produto, Integer>> produtosMaisVendidos = new ArrayList<>(quantidadeVendidaPorProduto.entrySet());
         produtosMaisVendidos.sort((a, b) -> b.getValue().compareTo(a.getValue()));
-
-        
+   
         //Imprimindo os 5 produtos mais vendidos
         System.out.println("Produtos mais vendidos:");
         int count = 0;
@@ -256,7 +250,6 @@ import java.util.Map;
             }
         }
     }
-	
 	
 	public void salvarDados() {
         try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream("dados.txt"))) {
