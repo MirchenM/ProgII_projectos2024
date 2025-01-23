@@ -8,9 +8,9 @@ import java.util.Scanner;
 
 public class MercadoVirtual {
 	
-	//Atributos
-	private static Map<Integer, Produto> catalogo = new HashMap<>();
-  private static CarrinhoDeCompras carrinho = new CarrinhoDeCompras();
+//Atributos
+private static Map<Integer, Produto> catalogo = new HashMap<>();
+private static CarrinhoDeCompras carrinho = new CarrinhoDeCompras();
 
     //Metodo Principal
     public static void main(String[] args) {
