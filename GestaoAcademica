@@ -28,7 +28,8 @@ public class Curso {
 }
 
 
-public class Cadeira {
+
+	class Cadeira {
 
 	private String nome;
 	private String codigo;
@@ -49,7 +50,7 @@ public class Cadeira {
 
 
 
-public class Semestre {
+class Semestre {
 
 	private String nome;
 	private List<Cadeira> cadeiras;
@@ -75,7 +76,7 @@ public class Semestre {
 
 
 
-public class SistemaGestaoAcademica {
+class SistemaGestaoAcademica {
 	
 	public static void main(String [] args) {
 		Scanner lerValores = new Scanner(System.in);
